@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 .tmp/
+node_modules
+.vite/
