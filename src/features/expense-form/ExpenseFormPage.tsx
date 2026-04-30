@@ -224,6 +224,35 @@ export function ExpenseFormPage() {
     }
   })
 
+  const onGenerateForAutoFirma = async () => {
+    setGenerationError(null)
+    const form = computeDerivedValues(getValues() as ExpenseFormValues)
+    const messages = validateBusinessRulesWithAttachments(form, attachments)
+    const blockers = messages.filter((item) => item.level === 'error')
+    if (blockers.length > 0) {
+      setGenerationError(blockers.map((item) => item.message).join(' | '))
+      return
+    }
+    try {
+      setIsGenerating(true)
+      const checklistResult = buildAttachmentChecklist(attachments)
+      const bytes = await generateExpensePdf({
+        form,
+        signatureDataUrl: '',
+        attachments,
+        checklist: checklistResult,
+      })
+      const binary = new Uint8Array(bytes.byteLength)
+      binary.set(bytes)
+      downloadBlob(new Blob([binary], { type: 'application/pdf' }), toFilename(form))
+      window.open('afirma://', '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : 'Error no controlado al generar PDF')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   const onDownloadCalibration = async () => {
     try {
       const bytes = await generateCalibrationPdf()
@@ -451,7 +480,37 @@ export function ExpenseFormPage() {
 
           <section className={SECTION_CLASS}>
             <h2 className="fafa-heading text-xl font-semibold text-[#123925]">6. Firma</h2>
-            <div className="mt-4">
+            <div className="mt-4 space-y-4">
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4">
+                <p className="text-sm font-semibold text-emerald-900">Opcion recomendada: AutoFirma</p>
+                <p className="mt-1 text-xs text-emerald-800">
+                  Genera el PDF sin firma y abelo con{' '}
+                  <a
+                    href="https://firmaelectronica.gob.es/Home/Descargas.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-emerald-600"
+                  >
+                    AutoFirma
+                  </a>{' '}
+                  para firmarlo con tu certificado electronico (DNIe, FNMT, etc.). Requiere tener
+                  AutoFirma instalado en tu equipo.
+                </p>
+                <ol className="mt-2 list-decimal pl-5 text-xs text-emerald-800 space-y-1">
+                  <li>Pulsa el boton de abajo para descargar el PDF sin firma.</li>
+                  <li>Abre el PDF descargado con AutoFirma.</li>
+                  <li>Selecciona tu certificado y firma el documento.</li>
+                  <li>Guarda el PDF firmado y envialo por los canales habituales.</li>
+                </ol>
+              </div>
+
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Alternativa: firma manuscrita en el documento
+              </p>
+              <p className="text-xs text-slate-600">
+                Si no tienes AutoFirma instalado, puedes dibujar tu firma a continuacion. Se incrustara
+                directamente en el PDF generado.
+              </p>
               <SignatureField signatureDataUrl={signatureDataUrl} onChange={setSignatureDataUrl} />
             </div>
           </section>
@@ -486,7 +545,7 @@ export function ExpenseFormPage() {
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt>Firma</dt>
-                <dd>{signatureDataUrl ? 'OK' : 'Falta'}</dd>
+                <dd>{signatureDataUrl ? 'Manuscrita' : 'AutoFirma / pendiente'}</dd>
               </div>
             </dl>
 
@@ -534,6 +593,15 @@ export function ExpenseFormPage() {
                 className="rounded-xl bg-[#2f6d50] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#24563f] disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {isGenerating ? 'Generando PDF...' : 'Generar y descargar PDF final'}
+              </button>
+
+              <button
+                type="button"
+                disabled={isGenerating || blockingMessages.length > 0}
+                onClick={onGenerateForAutoFirma}
+                className="rounded-xl border border-emerald-600 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-400"
+              >
+                {isGenerating ? 'Generando PDF...' : 'Descargar para firmar con AutoFirma'}
               </button>
 
               <button

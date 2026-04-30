@@ -142,12 +142,15 @@ const hasAttachment = (attachments: AttachmentItem[], types: Array<AttachmentIte
 export const validateBusinessRulesWithAttachments = (
   data: ExpenseSchemaOutput,
   attachments: AttachmentItem[],
-  hasSignature: boolean,
+  hasSignature = false,
 ): RuleMessage[] => {
   const messages: RuleMessage[] = []
 
   if (!hasSignature) {
-    messages.push({ level: 'error', message: 'La firma manuscrita del interesado es obligatoria' })
+    messages.push({
+      level: 'warning',
+      message: 'Sin firma en el documento: recuerda firmarlo con AutoFirma o con la firma manuscrita antes de enviarlo',
+    })
   }
 
   if (data.ownVehicleChecked && !hasAttachment(attachments, ['fuel'])) {
