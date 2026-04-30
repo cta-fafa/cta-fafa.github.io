@@ -1,0 +1,290 @@
+{
+  "fullName": {
+    "x": 284,
+    "y": 343,
+    "width": 621,
+    "height": 24,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "dni": {
+    "x": 194,
+    "y": 378,
+    "width": 229,
+    "height": 25,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "travelReason": {
+    "x": 336,
+    "y": 407,
+    "width": 448,
+    "height": 25,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "place": {
+    "x": 226,
+    "y": 435,
+    "width": 448,
+    "height": 27,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "tripDurationDays": {
+    "x": 484,
+    "y": 468,
+    "width": 54,
+    "height": 26,
+    "fontSize": 18,
+    "align": "center"
+  },
+  "tripDate": {
+    "x": 553,
+    "y": 469,
+    "width": 198,
+    "height": 24,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "regularTransportTrainChecked": {
+    "x": 291,
+    "y": 576,
+    "width": 106,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "regularTransportTrainAmount": {
+    "x": 1011,
+    "y": 576,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "regularTransportPlaneChecked": {
+    "x": 291,
+    "y": 602,
+    "width": 110,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "regularTransportPlaneAmount": {
+    "x": 1011,
+    "y": 600,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "regularTransportBusChecked": {
+    "x": 291,
+    "y": 626,
+    "width": 110,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "regularTransportBusAmount": {
+    "x": 1011,
+    "y": 623,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "regularTransportOtherChecked": {
+    "x": 291,
+    "y": 650,
+    "width": 110,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "regularTransportOtherAmount": {
+    "x": 1011,
+    "y": 649,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "ownVehicleChecked": {
+    "x": 291,
+    "y": 693,
+    "width": 110,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "vehiclePlate": {
+    "x": 612,
+    "y": 684,
+    "width": 95,
+    "height": 33,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "vehicleOwner": {
+    "x": 808,
+    "y": 686,
+    "width": 315,
+    "height": 33,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "route": {
+    "x": 268,
+    "y": 725,
+    "width": 853,
+    "height": 33,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "totalKm": {
+    "x": 270,
+    "y": 771,
+    "width": 214,
+    "height": 33,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "ownVehicleAmount": {
+    "x": 1011,
+    "y": 781,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "tollOutward": {
+    "x": 1011,
+    "y": 821,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "tollReturn": {
+    "x": 1011,
+    "y": 846,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "mealDays": {
+    "x": 320,
+    "y": 956,
+    "width": 52,
+    "height": 33,
+    "fontSize": 18,
+    "align": "center"
+  },
+  "mealAmountPerDay": {
+    "x": 652,
+    "y": 962,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "mealTotal": {
+    "x": 1011,
+    "y": 959,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "overnightAmount": {
+    "x": 1011,
+    "y": 989,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "hotelAmountPerDay": {
+    "x": 599,
+    "y": 1030,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "hotelTotal": {
+    "x": 1011,
+    "y": 1032,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "totalExpenses": {
+    "x": 1011,
+    "y": 1099,
+    "width": 125,
+    "height": 23,
+    "fontSize": 18,
+    "align": "right"
+  },
+  "iban": {
+    "x": 428,
+    "y": 1167,
+    "width": 469,
+    "height": 28,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "email": {
+    "x": 406,
+    "y": 1213,
+    "width": 375,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "signatureInterested": {
+    "x": 841,
+    "y": 1294,
+    "width": 167,
+    "height": 66,
+    "fontSize": 21,
+    "align": "left"
+  },
+  "attachmentsOriginalTicketsChecked": {
+    "x": 267,
+    "y": 1417,
+    "width": 154,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "attachmentsHotelInvoiceChecked": {
+    "x": 268,
+    "y": 1439,
+    "width": 153,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "attachmentsOtherChecked": {
+    "x": 266,
+    "y": 1461,
+    "width": 157,
+    "height": 23,
+    "fontSize": 18,
+    "align": "left"
+  },
+  "ratePerKm": {
+    "x": 716,
+    "y": 767,
+    "width": 78,
+    "height": 33,
+    "fontSize": 18,
+    "align": "right"
+  }
+}

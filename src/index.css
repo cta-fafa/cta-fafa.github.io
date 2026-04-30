@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+  --fafa-green-950: #102e21;
+  --fafa-green-900: #1a4b34;
+  --fafa-green-700: #2f6d50;
+  --fafa-green-300: #a8d2bc;
+  --fafa-green-100: #edf7f1;
+  --fafa-ice: #f6fbf8;
+}
+
+body {
+  margin: 0;
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  background: linear-gradient(180deg, #f7fbf8 0%, #f1f8f4 42%, #fbfdfb 100%);
+  color: #163124;
+}
+
+.bg-page {
+  background-image: radial-gradient(circle at 5% 0%, #dff0e6 0, transparent 43%),
+    radial-gradient(circle at 97% 4%, #f2faf5 0, transparent 29%),
+    linear-gradient(165deg, #f1f8f4, #fbfdfb 42%, #f0f7f3);
+}
+
+.fafa-heading {
+  font-family: 'Barlow Condensed', 'Source Sans 3', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.fafa-topbar {
+  background: linear-gradient(90deg, var(--fafa-green-950), var(--fafa-green-900));
+  color: #d9edde;
+}
+
+.fafa-shell {
+  position: relative;
+}
+
+.fafa-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 270px;
+  background: linear-gradient(135deg, rgba(16, 46, 33, 0.98), rgba(26, 75, 52, 0.96));
+  clip-path: polygon(0 0, 100% 0, 100% 74%, 0 100%);
+  z-index: 0;
+}
+
+.fafa-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.panel-surface {
+  border-radius: 1rem;
+  border: 1px solid #d4e5db;
+  background: rgba(255, 255, 255, 0.93);
+  box-shadow: 0 10px 24px -18px rgba(18, 52, 36, 0.28);
+}
+
+.signature-canvas {
+  display: block;
+  background-image: linear-gradient(#ffffff, #ffffff),
+    repeating-linear-gradient(to bottom, transparent, transparent 31px, #e2e8f0 32px);
+  background-size: 100% 100%, 100% 32px;
+  border-radius: 8px;
+}
