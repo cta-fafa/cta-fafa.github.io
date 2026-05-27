@@ -16,7 +16,7 @@ import {
   validateBusinessRulesWithAttachments,
 } from '../validation/expenseSchema'
 import { clearDraft, loadDraft, saveDraft } from '../../lib/draftStorage'
-import type { AttachmentItem, ExpenseFormValues } from '../../types/expense'
+import type { AttachmentItem, AttachmentType, ExpenseFormValues } from '../../types/expense'
 import { downloadBlob } from '../../utils/download'
 import { formatDateEs, formatEuro } from '../../utils/format'
 import { buildGoogleMapsDirectionsUrl } from '../../utils/maps'
@@ -64,6 +64,8 @@ export function ExpenseFormPage() {
   const [signatureDataUrl, setSignatureDataUrl] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
+  const [attachLater, setAttachLater] = useState(false)
+  const [acknowledgedLater, setAcknowledgedLater] = useState<Set<AttachmentType>>(new Set())
   const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(null)
   const [isDraftHydrated, setIsDraftHydrated] = useState(false)
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now())
@@ -194,13 +196,32 @@ export function ExpenseFormPage() {
 
   const blockingMessages = businessMessages.filter((item) => item.level === 'error')
 
+  const missingRequiredTypes = useMemo(() => {
+    const has = (t: AttachmentType) => attachments.some((a) => a.type === t)
+    const types: { type: AttachmentType; label: string }[] = []
+    if (currentValues.regularTransportTrainChecked && !has('train'))
+      types.push({ type: 'train', label: 'Justificante de tren' })
+    if (currentValues.regularTransportPlaneChecked && !has('plane'))
+      types.push({ type: 'plane', label: 'Justificante de avón' })
+    if (currentValues.regularTransportBusChecked && !has('bus'))
+      types.push({ type: 'bus', label: 'Justificante de autobús' })
+    if (currentValues.hotelTotal > 0 && !has('hotel'))
+      types.push({ type: 'hotel', label: 'Factura de hotel' })
+    return types
+  }, [currentValues, attachments])
+
+  const allAcknowledged =
+    missingRequiredTypes.length === 0 ||
+    missingRequiredTypes.every(({ type }) => acknowledgedLater.has(type))
+  const isBlocked = blockingMessages.length > 0 && (!attachLater || !allAcknowledged)
+
   const onSubmit = handleSubmit(async (input) => {
     setGenerationError(null)
     const form = computeDerivedValues(input as ExpenseFormValues)
 
     const messages = validateBusinessRulesWithAttachments(form, attachments, Boolean(signatureDataUrl))
     const blockers = messages.filter((item) => item.level === 'error')
-    if (blockers.length > 0) {
+    if (!attachLater && blockers.length > 0) {
       setGenerationError(blockers.map((item) => item.message).join(' | '))
       return
     }
@@ -229,7 +250,7 @@ export function ExpenseFormPage() {
     const form = computeDerivedValues(getValues() as ExpenseFormValues)
     const messages = validateBusinessRulesWithAttachments(form, attachments)
     const blockers = messages.filter((item) => item.level === 'error')
-    if (blockers.length > 0) {
+    if (!attachLater && blockers.length > 0) {
       setGenerationError(blockers.map((item) => item.message).join(' | '))
       return
     }
@@ -579,6 +600,52 @@ export function ExpenseFormPage() {
                   Sin avisos de negocio.
                 </p>
               )}
+              {blockingMessages.length > 0 && (
+                <label className="mt-1 inline-flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50">
+                  <input
+                    type="checkbox"
+                    checked={attachLater}
+                    onChange={(e) => {
+                      setAttachLater(e.target.checked)
+                      if (!e.target.checked) setAcknowledgedLater(new Set())
+                    }}
+                    className="h-3.5 w-3.5 accent-[#2f6d50]"
+                  />
+                  Añadiré los justificantes más tarde
+                </label>
+              )}
+              {attachLater && missingRequiredTypes.length > 0 && (
+                <div className="mt-1 rounded-md border border-amber-300 bg-amber-50 p-3 space-y-2">
+                  {!allAcknowledged && (
+                    <p className="text-xs font-semibold text-amber-800">
+                      Por favor, selecciona los justificantes que añadirás más tarde para habilitar la descarga:
+                    </p>
+                  )}
+                  {allAcknowledged && (
+                    <p className="text-xs font-semibold text-amber-800">
+                      Justificantes pendientes de adjuntar:
+                    </p>
+                  )}
+                  {missingRequiredTypes.map(({ type, label }) => (
+                    <label key={type} className="flex cursor-pointer items-center gap-2 text-xs text-amber-900">
+                      <input
+                        type="checkbox"
+                        checked={acknowledgedLater.has(type)}
+                        onChange={(e) => {
+                          setAcknowledgedLater((prev) => {
+                            const next = new Set(prev)
+                            if (e.target.checked) next.add(type)
+                            else next.delete(type)
+                            return next
+                          })
+                        }}
+                        className="h-3.5 w-3.5 accent-[#2f6d50]"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              )}
               {generationError && (
                 <p className="rounded-md border border-rose-300 bg-rose-50 px-2 py-1 text-rose-700">
                   {generationError}
@@ -589,7 +656,7 @@ export function ExpenseFormPage() {
             <div className="mt-4 grid gap-2">
               <button
                 type="submit"
-                disabled={isSubmitting || isGenerating || blockingMessages.length > 0}
+                disabled={isSubmitting || isGenerating || isBlocked}
                 className="rounded-xl bg-[#2f6d50] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#24563f] disabled:cursor-not-allowed disabled:bg-slate-400"
               >
                 {isGenerating ? 'Generando PDF...' : 'Generar y descargar PDF final'}
@@ -597,7 +664,7 @@ export function ExpenseFormPage() {
 
               <button
                 type="button"
-                disabled={isGenerating || blockingMessages.length > 0}
+                disabled={isGenerating || isBlocked}
                 onClick={onGenerateForAutoFirma}
                 className="rounded-xl border border-emerald-600 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-400"
               >
