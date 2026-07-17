@@ -1,38 +1,46 @@
+---
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
-      timezone: "Europe/Madrid"
-    open-pull-requests-limit: 8
-    target-branch: "main"
-    labels:
-      - "dependencies"
-      - "npm"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
-    groups:
-      production-dependencies:
-        dependency-type: "production"
-      development-dependencies:
-        dependency-type: "development"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:30"
-      timezone: "Europe/Madrid"
-    open-pull-requests-limit: 4
-    target-branch: "main"
-    labels:
-      - "dependencies"
-      - "github-actions"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: monday
+    time: '06:00'
+    timezone: Europe/Madrid
+  open-pull-requests-limit: 8
+  target-branch: main
+  labels:
+  - dependencies
+  - npm
+  commit-message:
+    prefix: chore
+    include: scope
+  groups:
+    production-dependencies:
+      dependency-type: production
+    development-dependencies:
+      dependency-type: development
+  assignees:
+  - javiyt
+  reviewers:
+  - javiyt
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
+    day: monday
+    time: '06:30'
+    timezone: Europe/Madrid
+  open-pull-requests-limit: 4
+  target-branch: main
+  labels:
+  - dependencies
+  - github-actions
+  commit-message:
+    prefix: chore
+    include: scope
+  assignees:
+  - javiyt
+  reviewers:
+  - javiyt
