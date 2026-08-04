@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { AttachmentsManager } from '../attachments/AttachmentsManager'
 import { generateExpensePdf } from '../pdf-generation/generateExpensePdf'
 import { generateCalibrationPdf } from '../pdf-generation/generateCalibrationPdf'
@@ -59,18 +59,48 @@ const toFilename = (form: ExpenseFormValues): string => {
   return `hoja-gastos-${dateValue}-${normalized || 'arbitro'}.pdf`
 }
 
+type InitialDraftState = {
+  form: ExpenseFormValues
+  signatureDataUrl: string
+  lastDraftSavedAt: number | null
+}
+
+const getInitialDraftState = (): InitialDraftState => {
+  const draft = loadDraft()
+  if (!draft?.form) {
+    return {
+      form: computeDerivedValues(defaultExpenseValues),
+      signatureDataUrl: '',
+      lastDraftSavedAt: null,
+    }
+  }
+
+  const parsedUpdatedAt = new Date(draft.updatedAt).getTime()
+
+  return {
+    form: computeDerivedValues({ ...defaultExpenseValues, ...draft.form }),
+    signatureDataUrl: draft.signatureDataUrl,
+    lastDraftSavedAt: Number.isFinite(parsedUpdatedAt) ? parsedUpdatedAt : null,
+  }
+}
+
 export function ExpenseFormPage() {
+  const [initialDraft] = useState<InitialDraftState>(() => getInitialDraftState())
   const [attachments, setAttachments] = useState<AttachmentItem[]>([])
-  const [signatureDataUrl, setSignatureDataUrl] = useState('')
+  const [signatureDataUrl, setSignatureDataUrl] = useState(initialDraft.signatureDataUrl)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [attachLater, setAttachLater] = useState(false)
   const [acknowledgedLater, setAcknowledgedLater] = useState<Set<AttachmentType>>(new Set())
-  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(null)
-  const [isDraftHydrated, setIsDraftHydrated] = useState(false)
+  const [lastDraftSavedAt, setLastDraftSavedAt] = useState<number | null>(initialDraft.lastDraftSavedAt)
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now())
   const attachmentRef = useRef<AttachmentItem[]>([])
-  const lastSavedSnapshotRef = useRef<string>('')
+  const lastSavedSnapshotRef = useRef<string>(
+    JSON.stringify({
+      form: initialDraft.form,
+      signatureDataUrl: initialDraft.signatureDataUrl,
+    }),
+  )
 
   const formatAgo = (savedAt: number): string => {
     const seconds = Math.max(0, Math.floor((nowTimestamp - savedAt) / 1000))
@@ -91,45 +121,20 @@ export function ExpenseFormPage() {
   }
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors, isSubmitting },
     getValues,
   } = useForm<ExpenseSchemaInput>({
     resolver: zodResolver(expenseSchema),
     mode: 'onChange',
-    defaultValues: defaultExpenseValues,
+    defaultValues: initialDraft.form,
   })
 
-  const values = watch() as ExpenseFormValues
-
-  useEffect(() => {
-    const draft = loadDraft()
-    let hydratedForm = computeDerivedValues(defaultExpenseValues)
-    let hydratedSignatureDataUrl = ''
-
-    if (draft?.form) {
-      hydratedForm = computeDerivedValues({ ...defaultExpenseValues, ...draft.form })
-      reset(hydratedForm)
-      const parsedUpdatedAt = new Date(draft.updatedAt).getTime()
-      if (Number.isFinite(parsedUpdatedAt)) {
-        setLastDraftSavedAt(parsedUpdatedAt)
-      }
-    }
-    if (draft?.signatureDataUrl) {
-      hydratedSignatureDataUrl = draft.signatureDataUrl
-      setSignatureDataUrl(hydratedSignatureDataUrl)
-    }
-
-    lastSavedSnapshotRef.current = JSON.stringify({
-      form: hydratedForm,
-      signatureDataUrl: hydratedSignatureDataUrl,
-    })
-    setIsDraftHydrated(true)
-  }, [reset])
+  const values = useWatch({ control }) as ExpenseFormValues
 
   useEffect(() => {
     const intervalId = window.setInterval(() => setNowTimestamp(Date.now()), 1000)
@@ -137,10 +142,6 @@ export function ExpenseFormPage() {
   }, [])
 
   useEffect(() => {
-    if (!isDraftHydrated) {
-      return
-    }
-
     const calculated = computeDerivedValues(values)
 
     const updateIfDifferent = <K extends keyof ExpenseFormValues>(key: K, value: ExpenseFormValues[K]) => {
@@ -173,7 +174,7 @@ export function ExpenseFormPage() {
     saveDraft(calculated, signatureDataUrl)
     lastSavedSnapshotRef.current = snapshot
     setLastDraftSavedAt(Date.now())
-  }, [values, signatureDataUrl, setValue, getValues, isDraftHydrated])
+  }, [values, signatureDataUrl, setValue, getValues])
 
   useEffect(() => {
     attachmentRef.current = attachments
