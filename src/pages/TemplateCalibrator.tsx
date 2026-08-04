@@ -35,10 +35,13 @@ const getInitialActiveFieldId = (): string => {
 }
 
 export const TemplateCalibrator = () => {
-  const [fieldMap, setFieldMap] = useState<TemplateFieldMap>(() => cloneFieldMap(getTemplateFieldMap()))
+  const [templateState, setTemplateState] = useState(() => ({
+    fieldMap: cloneFieldMap(getTemplateFieldMap()),
+    lastSavedAt: Date.now(),
+  }))
   const [activeFieldId, setActiveFieldId] = useState<string>(() => getInitialActiveFieldId())
-  const [lastSavedAt, setLastSavedAt] = useState<number>(() => Date.now())
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now())
+  const { fieldMap, lastSavedAt } = templateState
 
   const formatAgo = (savedAt: number): string => {
     const seconds = Math.max(0, Math.floor((nowTimestamp - savedAt) / 1000))
@@ -65,16 +68,22 @@ export const TemplateCalibrator = () => {
     [],
   )
 
+  const commitFieldMap = (createNext: (previous: TemplateFieldMap) => TemplateFieldMap) => {
+    setTemplateState((previous) => ({
+      fieldMap: createNext(previous.fieldMap),
+      lastSavedAt: Date.now(),
+    }))
+  }
+
   const updateField = (fieldId: string, position: TemplateFieldPosition) => {
-    setFieldMap((previous) => {
-      return { ...previous, [fieldId]: position }
-    })
+    commitFieldMap((previous) => ({ ...previous, [fieldId]: position }))
   }
 
   const deleteField = (fieldId: string) => {
-    setFieldMap((previous) => {
-      const { [fieldId]: _removed, ...rest } = previous
-      return rest
+    commitFieldMap((previous) => {
+      const next = { ...previous }
+      delete next[fieldId]
+      return next
     })
   }
 
@@ -98,7 +107,7 @@ export const TemplateCalibrator = () => {
 
   const resetAll = () => {
     const next = cloneFieldMap(DEFAULT_TEMPLATE_FIELD_MAP)
-    setFieldMap(next)
+    commitFieldMap(() => next)
   }
 
   const exportJson = async () => {
@@ -123,7 +132,7 @@ export const TemplateCalibrator = () => {
     try {
       const parsed = JSON.parse(input)
       const normalized = parseTemplateFieldMapInput(parsed, { includeDefaults: false })
-      setFieldMap(normalized)
+      commitFieldMap(() => normalized)
       return true
     } catch {
       return false
@@ -137,13 +146,12 @@ export const TemplateCalibrator = () => {
     }
 
     const normalized = parseTemplateFieldMapInput(fromAsset, { includeDefaults: false })
-    setFieldMap(normalized)
+    commitFieldMap(() => normalized)
     return true
   }
 
   useEffect(() => {
     saveTemplateFieldMap(fieldMap)
-    setLastSavedAt(Date.now())
   }, [fieldMap])
 
   useEffect(() => {
