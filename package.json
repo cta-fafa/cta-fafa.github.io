@@ -14,7 +14,7 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.8.0",
+    "@hookform/resolvers": "^5.9.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "pdf-lib": "^1.17.1",
